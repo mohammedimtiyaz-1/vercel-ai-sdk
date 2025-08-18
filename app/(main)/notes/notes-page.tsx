@@ -4,6 +4,7 @@ import { AIChatButton } from "./ai-chat-button";
 import { CreateNoteButton } from "./create-note-button";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
+import { NoteItem } from "./note-item";
 
 export function NotesPage() {
   const notes = useQuery(api.notes.getUserNotes);
@@ -25,15 +26,12 @@ export function NotesPage() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           {notes.map((note) => (
-            <div
+            <NoteItem
               key={note._id}
-              className="flex flex-col space-y-3 bg-card p-4 rounded-lg shadow hover:shadow-md transition-shadow"
-            >
-              <h2 className="text-lg font-semibold text-card-foreground">
-                {note.title}
-              </h2>
-              <p className="text-muted-foreground line-clamp-3">{note.body}</p>
-            </div>
+              title={note.title}
+              body={note.body}
+              id={note._id}
+            />
           ))}
         </div>
       )}
