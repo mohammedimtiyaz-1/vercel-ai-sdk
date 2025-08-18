@@ -1,9 +1,12 @@
+"use client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AIChatButton } from "./ai-chat-button";
 import { CreateNoteButton } from "./create-note-button";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
 
 export function NotesPage() {
-  const notes: [] | undefined = [];
+  const notes = useQuery(api.notes.getUserNotes);
 
   return (
     <div className="container xl:max-w-6xl mx-auto">
@@ -21,7 +24,17 @@ export function NotesPage() {
         <EmptyView />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {/* TODO: Render user's notes here */}
+          {notes.map((note) => (
+            <div
+              key={note._id}
+              className="flex flex-col space-y-3 bg-card p-4 rounded-lg shadow hover:shadow-md transition-shadow"
+            >
+              <h2 className="text-lg font-semibold text-card-foreground">
+                {note.title}
+              </h2>
+              <p className="text-muted-foreground line-clamp-3">{note.body}</p>
+            </div>
+          ))}
         </div>
       )}
     </div>

@@ -4,27 +4,29 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-
+import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
 import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Plus } from "lucide-react";
+import { useMutation } from "convex/react";
+import { toast } from "sonner";
 
 const noteFormSchema = z.object({
   title: z.string().min(1, {
@@ -55,6 +57,7 @@ interface CreateNoteDialogProps {
 }
 
 function CreateNoteDialog({ open, onOpenChange }: CreateNoteDialogProps) {
+  const createNote = useMutation(api.notes.createNote);
   const form = useForm<z.infer<typeof noteFormSchema>>({
     resolver: zodResolver(noteFormSchema),
     defaultValues: {
@@ -62,9 +65,21 @@ function CreateNoteDialog({ open, onOpenChange }: CreateNoteDialogProps) {
       body: "",
     },
   });
-
+  const isSubmitting = form.formState.isSubmitting;
   async function onSubmit(values: z.infer<typeof noteFormSchema>) {
     // TODO: Create note from form input
+    try {
+      await createNote({
+        title: values.title,
+        body: values.body,
+      });
+      toast.success("Note created successfully!");
+      form.reset();
+      onOpenChange(false);
+    } catch (error) {
+      console.log("Error creating note:", error);
+      toast.error("Failed to create note. Please try again.");
+    }
   }
 
   return (
@@ -106,7 +121,9 @@ function CreateNoteDialog({ open, onOpenChange }: CreateNoteDialogProps) {
               )}
             />
             <DialogFooter>
-              <Button type="submit">Save</Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? "submiting..." : "Save"}
+              </Button>
             </DialogFooter>
           </form>
         </Form>

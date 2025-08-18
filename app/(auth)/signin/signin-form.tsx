@@ -15,9 +15,17 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { AuthFormValues, signinSchema } from "../schema";
+import { useAuthActions } from "@convex-dev/auth/react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export function SigninForm() {
   const [step, setStep] = useState<"signIn" | "signUp">("signIn");
+
+  const { signIn } = useAuthActions();
+
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const form = useForm<AuthFormValues>({
     resolver: zodResolver(signinSchema),
@@ -28,7 +36,41 @@ export function SigninForm() {
   });
 
   async function onSubmit(values: AuthFormValues) {
-    // TODO: Sign in
+    setLoading(true);
+    try {
+      await signIn("password", {
+        email: values.email,
+        password: values.password,
+        flow: step,
+      });
+      setLoading(false);
+      toast.success(
+        step === "signIn"
+          ? "Logged in successfully!"
+          : "Account created successfully!"
+      );
+      router.push("/notes");
+    } catch (error: Error | unknown) {
+      setLoading(false);
+      if (error instanceof Error) {
+        form.setError("root", {
+          type: "manual",
+          message: error instanceof Error ? error.message : "An error occurred",
+        });
+        toast.error(
+          step === "signIn"
+            ? "Failed to log in. Please check your credentials."
+            : "Failed to create account. Please try again."
+        );
+      } else {
+        form.setError("root", {
+          type: "manual",
+          message: "An unexpected error occurred. Please try again.",
+        });
+        toast.error("An unexpected error occurred. Please try again.");
+      }
+      console.error("Authentication error:", error);
+    }
   }
 
   return (
@@ -81,7 +123,7 @@ export function SigninForm() {
                 {form.formState.errors.root.message}
               </div>
             )}
-            <Button type="submit" className="w-full">
+            <Button type="submit" className="w-full" disabled={loading}>
               {step === "signIn" ? "Sign In" : "Sign Up"}
             </Button>
           </form>
