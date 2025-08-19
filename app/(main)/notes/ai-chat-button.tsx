@@ -5,12 +5,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { api } from "@/convex/_generated/api";
 import { cn } from "@/lib/utils";
 import { Bot, Expand, Minimize, Send, Trash, X } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { UIMessage, useChat } from "@ai-sdk/react";
 import { useAuthToken } from "@convex-dev/auth/react";
 import { set } from "zod/v4";
 import Markdown from "@/components/markdown";
 import { DefaultChatTransport } from "ai";
+import { toast } from "sonner";
 
 const contextSiteUrl = process.env.NEXT_PUBLIC_CONVEX_URL?.replace(
   /.cloud$/,
@@ -36,30 +37,70 @@ interface AIChatBoxProps {
   onClose: () => void;
 }
 
+const initialMessages: UIMessage[] = [
+  {
+    id: "initial-wellcome-id",
+    role: "assistant",
+    parts: [
+      {
+        type: "text",
+        text: "Hello! I'm your  Note AI assistant. Just ask me anything related to your notes",
+      },
+    ],
+  },
+];
+
 function AIChatBox({ open, onClose }: AIChatBoxProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [input, setInput] = useState("");
   const token = useAuthToken();
-  console.log("AIChatBox token", token, `${contextSiteUrl}/api/chat`);
-  const { messages, sendMessage } = useChat({
+
+  const { messages, sendMessage, status, setMessages } = useChat({
     transport: new DefaultChatTransport({
       api: `${contextSiteUrl}/api/chat`,
       headers: { Authorization: `Bearer ${token}` },
     }),
+    messages: initialMessages,
+    onError: (error) => {
+      console.error("Error in AI chat:", error);
+      toast.error("An error occurred while processing your request at AI side");
+      // Optionally, you can show an error message to the user
+    },
   });
-  console.log({ messages });
-  // Assuming useChat is a custom hook that handles chat logic
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  useEffect(() => {
+    if (open) {
+      messagesEndRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "end",
+        inline: "nearest",
+      });
+    }
+  }, [open, messages]);
+
+  const isProcessing = status === "submitted" || status === "streaming";
+
   function onSubmit(event: React.FormEvent) {
-    console.log("onSubmit called", input);
     event.preventDefault();
-    if (input.trim()) {
+    if (input.trim() && !isProcessing) {
       sendMessage({ text: input });
       setInput("");
     }
   }
+
+  function handleKeyDown(event: React.KeyboardEvent) {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      onSubmit(event);
+    }
+  }
+  // If the chat is not open, return null to avoid rendering
   if (!open) return null;
+  const isLastMessageFromUser =
+    messages.length > 0 && messages[messages.length - 1].role === "user";
+  // If the chat is open, render the chat box
 
   return (
     <div
@@ -88,9 +129,12 @@ function AIChatBox({ open, onClose }: AIChatBoxProps) {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => {}}
+            onClick={() => {
+              setMessages(initialMessages);
+            }}
             className="text-primary-foreground hover:bg-primary/90 h-8 w-8"
             title="Clear chat"
+            disabled={isProcessing}
           >
             <Trash />
           </Button>
@@ -109,6 +153,8 @@ function AIChatBox({ open, onClose }: AIChatBoxProps) {
         {messages.map((message: UIMessage) => (
           <ChatMessage key={message.id} message={message} />
         ))}
+        {status === "submitted" && isLastMessageFromUser && <Loader />}
+        {status === "error" && <ErrorMessage />}
         <div ref={messagesEndRef} />
       </div>
 
@@ -128,7 +174,11 @@ function AIChatBox({ open, onClose }: AIChatBoxProps) {
           }}
         />
 
-        <Button type="submit" size="icon">
+        <Button
+          type="submit"
+          size="icon"
+          disabled={!input.trim() || isProcessing}
+        >
           <Send className="size-4" />
         </Button>
       </form>
@@ -179,6 +229,14 @@ function Loader() {
       <div className="bg-primary size-1.5 animate-pulse rounded-full" />
       <div className="bg-primary size-1.5 animate-pulse rounded-full delay-150" />
       <div className="bg-primary size-1.5 animate-pulse rounded-full delay-300" />
+    </div>
+  );
+}
+
+function ErrorMessage() {
+  return (
+    <div className="text-red-500 text-sm">
+      An error occurred while processing your request. Please try again later.
     </div>
   );
 }

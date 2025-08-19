@@ -18,7 +18,7 @@ http.route({
       return Response.json({ error: "unauthorised" }, { status: 401 });
     }
     const { messages }: { messages: UIMessage[] } = await req.json();
-    const lastMessage = messages.slice(-10);
+    const lastMessage = messages.slice(-5);
     const result = streamText({
       model: openai("gpt-3.5-turbo"),
       system: "You are a helpful assistant.",
