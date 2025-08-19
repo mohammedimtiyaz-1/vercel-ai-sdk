@@ -44,7 +44,7 @@ function AIChatBox({ open, onClose }: AIChatBoxProps) {
   const { messages, sendMessage } = useChat({
     transport: new DefaultChatTransport({
       api: `${contextSiteUrl}/api/chat`,
-      headers: { Authorisation: `Bearer ${token}` },
+      headers: { Authorization: `Bearer ${token}` },
     }),
   });
   console.log({ messages });

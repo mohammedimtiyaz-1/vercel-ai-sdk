@@ -12,6 +12,7 @@ http.route({
   method: "POST",
   handler: httpAction(async (ctx, req) => {
     console.log("Received request to /api/chat");
+    const headers = req.headers;
     const userId = await getAuthUserId(ctx);
     if (!userId) {
       return Response.json({ error: "unauthorised" }, { status: 401 });
@@ -29,6 +30,9 @@ http.route({
     return result.toUIMessageStreamResponse({
       headers: new Headers({
         "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "POST",
+        "Access-Control-Allow-Headers": "Content-Type, Digest, Authorization",
+        "Access-Control-Max-Age": "86400",
         Vary: "origin",
       }),
     });
@@ -49,7 +53,7 @@ http.route({
       return new Response(null, {
         headers: new Headers({
           "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "POST",
+          "Access-Control-Allow-Methods": "OPTIONS, POST",
           "Access-Control-Allow-Headers": "Content-Type, Digest, Authorization",
           "Access-Control-Max-Age": "86400",
         }),
