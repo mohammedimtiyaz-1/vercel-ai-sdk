@@ -1,25 +1,37 @@
-import { mutation, query } from "./_generated/server";
+import { internalMutation, mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { getAuthUserId } from "@convex-dev/auth/server";
 
-export const createNote = mutation({
+export const createNoteWithEmbeddings = internalMutation({
   args: {
     title: v.string(),
     body: v.string(),
+    userId: v.id("users"),
+    embeddings: v.array(
+      v.object({
+        embedding: v.array(v.float64()),
+        content: v.string(),
+      })
+    ),
   },
   returns: v.id("notes"),
-  // @ts-ignore
-  handler: async (ctx, args: { title: string; body: string }) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) {
-      throw new Error("User must be authenticated to create a note.");
-    }
-
-    return await ctx.db.insert("notes", {
+  handler: async (ctx, args) => {
+    const noteId = await ctx.db.insert("notes", {
       title: args.title,
       body: args.body,
-      userId: userId,
+      userId: args.userId,
     });
+
+    for (const embeddingData of args.embeddings) {
+      await ctx.db.insert("noteEmbeddings", {
+        content: embeddingData.content,
+        embedding: embeddingData.embedding,
+        noteId,
+        userId: args.userId,
+      });
+    }
+
+    return noteId;
   },
 });
 
@@ -43,19 +55,31 @@ export const deleteNote = mutation({
   args: {
     noteId: v.id("notes"),
   },
-  returns: v.boolean(),
-  handler: async (ctx, { noteId }) => {
+  handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
     if (!userId) {
-      throw new Error("User must be authenticated to delete a note.");
+      throw new Error("User must be authenticated to delete a note");
     }
 
-    const note = await ctx.db.get(noteId);
-    if (!note || note.userId !== userId) {
-      throw new Error("Note not found or does not belong to the user.");
+    const note = await ctx.db.get(args.noteId);
+
+    if (!note) {
+      throw new Error("Note not found");
     }
 
-    await ctx.db.delete(noteId);
-    return true;
+    if (note.userId !== userId) {
+      throw new Error("User is not authorized to delete this note");
+    }
+
+    const embeddings = await ctx.db
+      .query("noteEmbeddings")
+      .withIndex("by_noteId", (q) => q.eq("noteId", args.noteId))
+      .collect();
+
+    for (const embedding of embeddings) {
+      await ctx.db.delete(embedding._id);
+    }
+
+    await ctx.db.delete(args.noteId);
   },
 });

@@ -10,5 +10,18 @@ const schema = defineSchema({
     body: v.string(),
     userId: v.id("users"),
   }).index("by_userId", ["userId"]),
+
+  notesEmbeddings: defineTable({
+    content: v.string(),
+    embedding: v.array(v.float64()),
+    noteId: v.id("notes"),
+    userId: v.id("users"),
+  })
+    .index("by_noteId", ["noteId"])
+    .vectorIndex("by_embedding", {
+      vectorField: "embedding",
+      dimensions: 1536, // Adjust based on your embedding model
+      filterFields: ["userId"],
+    }),
 });
 export default schema;
