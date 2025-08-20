@@ -1,26 +1,36 @@
 import { openai } from "@ai-sdk/openai";
-import { embedMany } from "ai";
-import { boolean } from "zod";
+import { embed, embedMany } from "ai";
 
-const embedding_model = openai.embedding("text-embedding-3-small");
+const embeddingModel = openai.embedding("text-embedding-3-small");
 
-function generateEmbedding(input: string) {
+function generateChunks(input: string) {
   return input
-    .split("\n")
+    .split("\n\n")
     .map((chunk) => chunk.trim())
-    .filter(boolean);
+    .filter(Boolean);
 }
 
 export async function generateEmbeddings(
   value: string
 ): Promise<Array<{ content: string; embedding: number[] }>> {
-  const chunks = generateEmbedding(value);
+  const chunks = generateChunks(value);
+
   const { embeddings } = await embedMany({
-    model: embedding_model,
+    model: embeddingModel,
     values: chunks,
   });
+
   return embeddings.map((embedding, index) => ({
     content: chunks[index],
     embedding,
   }));
+}
+
+export async function generateEmbedding(value: string): Promise<number[]> {
+  const { embedding } = await embed({
+    model: embeddingModel,
+    value,
+  });
+
+  return embedding;
 }

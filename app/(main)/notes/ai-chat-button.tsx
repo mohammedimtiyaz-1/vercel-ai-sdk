@@ -1,19 +1,16 @@
 "use client";
 
+import Markdown from "@/components/markdown";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { api } from "@/convex/_generated/api";
 import { cn } from "@/lib/utils";
-import { Bot, Expand, Minimize, Send, Trash, X } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import { UIMessage, useChat } from "@ai-sdk/react";
+import { useChat } from "@ai-sdk/react";
 import { useAuthToken } from "@convex-dev/auth/react";
-import { set } from "zod/v4";
-import Markdown from "@/components/markdown";
-import { DefaultChatTransport } from "ai";
-import { toast } from "sonner";
+import { DefaultChatTransport, UIMessage } from "ai";
+import { Bot, Expand, Minimize, Send, Trash, X } from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
 
-const contextSiteUrl = process.env.NEXT_PUBLIC_CONVEX_URL?.replace(
+const convexSiteUrl = process.env.NEXT_PUBLIC_CONVEX_URL?.replace(
   /.cloud$/,
   ".site"
 );
@@ -39,68 +36,62 @@ interface AIChatBoxProps {
 
 const initialMessages: UIMessage[] = [
   {
-    id: "initial-wellcome-id",
+    id: "welcome-message",
     role: "assistant",
     parts: [
       {
         type: "text",
-        text: "Hello! I'm your  Note AI assistant. Just ask me anything related to your notes",
+        text: "I'm your notes assistant. I can find and summarize any information that you saved.",
       },
     ],
   },
 ];
 
 function AIChatBox({ open, onClose }: AIChatBoxProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
   const [input, setInput] = useState("");
+
+  const [isExpanded, setIsExpanded] = useState(false);
+
   const token = useAuthToken();
 
-  const { messages, sendMessage, status, setMessages } = useChat({
+  const { messages, sendMessage, setMessages, status } = useChat({
     transport: new DefaultChatTransport({
-      api: `${contextSiteUrl}/api/chat`,
-      headers: { Authorization: `Bearer ${token}` },
+      api: `${convexSiteUrl}/api/chat`,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     }),
     messages: initialMessages,
-    onError: (error) => {
-      console.error("Error in AI chat:", error);
-      toast.error("An error occurred while processing your request at AI side");
-      // Optionally, you can show an error message to the user
-    },
+    maxSteps: 3,
   });
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  const isProcessing = status === "submitted" || status === "streaming";
+
   useEffect(() => {
     if (open) {
-      messagesEndRef.current?.scrollIntoView({
-        behavior: "smooth",
-        block: "end",
-        inline: "nearest",
-      });
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }
   }, [open, messages]);
 
-  const isProcessing = status === "submitted" || status === "streaming";
-
-  function onSubmit(event: React.FormEvent) {
-    event.preventDefault();
+  function onSubmit(e: React.FormEvent) {
+    e.preventDefault();
     if (input.trim() && !isProcessing) {
       sendMessage({ text: input });
       setInput("");
     }
   }
 
-  function handleKeyDown(event: React.KeyboardEvent) {
-    if (event.key === "Enter" && !event.shiftKey) {
-      event.preventDefault();
-      onSubmit(event);
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      onSubmit(e);
     }
-  }
-  // If the chat is not open, return null to avoid rendering
+  };
+
   if (!open) return null;
-  const isLastMessageFromUser =
-    messages.length > 0 && messages[messages.length - 1].role === "user";
-  // If the chat is open, render the chat box
+
+  const lastMessageIsUser = messages[messages.length - 1].role === "user";
 
   return (
     <div
@@ -129,9 +120,7 @@ function AIChatBox({ open, onClose }: AIChatBoxProps) {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => {
-              setMessages(initialMessages);
-            }}
+            onClick={() => setMessages(initialMessages)}
             className="text-primary-foreground hover:bg-primary/90 h-8 w-8"
             title="Clear chat"
             disabled={isProcessing}
@@ -150,30 +139,24 @@ function AIChatBox({ open, onClose }: AIChatBoxProps) {
       </div>
 
       <div className="flex-1 space-y-4 overflow-y-auto p-3">
-        {messages.map((message: UIMessage) => (
+        {messages.map((message) => (
           <ChatMessage key={message.id} message={message} />
         ))}
-        {status === "submitted" && isLastMessageFromUser && <Loader />}
+        {status === "submitted" && lastMessageIsUser && <Loader />}
         {status === "error" && <ErrorMessage />}
         <div ref={messagesEndRef} />
       </div>
 
       <form className="flex gap-2 border-t p-3" onSubmit={onSubmit}>
         <Textarea
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={handleKeyDown}
           placeholder="Type your message..."
           className="max-h-[120px] min-h-[40px] resize-none overflow-y-auto"
           maxLength={1000}
           autoFocus
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-              e.preventDefault();
-              onSubmit(e);
-            }
-          }}
         />
-
         <Button
           type="submit"
           size="icon"
@@ -186,10 +169,12 @@ function AIChatBox({ open, onClose }: AIChatBoxProps) {
   );
 }
 
-function ChatMessage({ message }: { message: UIMessage }) {
-  console.log("ChatMessage", message);
+interface ChatMessageProps {
+  message: UIMessage;
+}
+
+function ChatMessage({ message }: ChatMessageProps) {
   const currentStep = message.parts[message.parts.length - 1];
-  console.log("currentStep", currentStep);
 
   return (
     <div
@@ -235,8 +220,8 @@ function Loader() {
 
 function ErrorMessage() {
   return (
-    <div className="text-red-500 text-sm">
-      An error occurred while processing your request. Please try again later.
+    <div className="text-sm text-red-500">
+      Something went wrong. Please try again.
     </div>
   );
 }
