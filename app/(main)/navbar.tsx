@@ -14,7 +14,7 @@ export function Navbar() {
     >
       <div className="container xl:max-w-6xl flex items-center mx-auto justify-between px-4 py-3">
         <Link
-          href="/notes"
+          href="/"
           className={cn(
             "flex items-center gap-3 text-xl font-semibold",
             "text-foreground hover:text-primary transition-colors duration-200",

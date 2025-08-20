@@ -30,6 +30,13 @@ export default function RootLayout({
         <body className={`${geistSans.className} antialiased`}>
           <ConvexClientProvider>{children}</ConvexClientProvider>
           <Toaster position="top-right" />
+          {/* Footer */}
+          <footer className="w-full bottom-0 fixed  mt-auto pt-8 pb-8 border-t border-gray-200">
+            <div className="text-sm text-muted-foreground text-center">
+              <p>&copy; {new Date().getFullYear()} Smart Notes.</p>
+              <p>Made with ❤️ by Imtiyaz </p>
+            </div>
+          </footer>
         </body>
       </html>
     </ConvexAuthNextjsServerProvider>

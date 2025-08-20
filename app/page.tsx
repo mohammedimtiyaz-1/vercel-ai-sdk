@@ -8,16 +8,7 @@ export default function Home() {
     <div className="min-h-screen flex flex-col items-center justify-center px-4 py-16">
       <main className="max-w-4xl mx-auto text-center space-y-8">
         {/* Logo */}
-        <div className="mb-8">
-          <Image
-            src={logo}
-            alt="Smart Notes Logo"
-            width={120}
-            height={120}
-            className="mx-auto"
-            priority
-          />
-        </div>
+        <div className="mb-8"></div>
 
         {/* Title */}
         <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight">
@@ -42,16 +33,6 @@ export default function Home() {
           <p>Built with Convex and the Vercel AI SDK</p>
         </div>
       </main>
-
-      {/* Footer */}
-      <footer className="w-full mt-auto pt-8 pb-8 border-t border-gray-200">
-        <div className="text-sm text-muted-foreground text-center">
-          <p>
-            &copy; {new Date().getFullYear()} Smart Notes. All rights reserved.
-          </p>
-          <p>Made with ❤️ by Imtiyaz </p>
-        </div>
-      </footer>
     </div>
   );
 }
