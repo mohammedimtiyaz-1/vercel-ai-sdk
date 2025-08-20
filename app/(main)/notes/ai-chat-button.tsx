@@ -20,9 +20,19 @@ export function AIChatButton() {
 
   return (
     <>
-      <Button onClick={() => setChatOpen(true)} variant="outline">
-        <Bot />
-        <span>Ask AI</span>
+      <Button
+        onClick={() => setChatOpen(true)}
+        variant="outline"
+        className={cn(
+          "bg-background/80 backdrop-blur-sm border-border/50",
+          "hover:bg-background hover:border-border",
+          "shadow-sm hover:shadow-md transition-all duration-200",
+          "hover:scale-105 transform",
+          "font-medium"
+        )}
+      >
+        <Bot className="w-4 h-4 mr-2" />
+        Ask AI
       </Button>
       <AIChatBox open={chatOpen} onClose={() => setChatOpen(false)} />
     </>
@@ -49,9 +59,7 @@ const initialMessages: UIMessage[] = [
 
 function AIChatBox({ open, onClose }: AIChatBoxProps) {
   const [input, setInput] = useState("");
-
   const [isExpanded, setIsExpanded] = useState(false);
-
   const token = useAuthToken();
 
   const { messages, sendMessage, setMessages, status } = useChat({
@@ -62,11 +70,9 @@ function AIChatBox({ open, onClose }: AIChatBoxProps) {
       },
     }),
     messages: initialMessages,
-    maxSteps: 3,
   });
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
-
   const isProcessing = status === "submitted" || status === "streaming";
 
   useEffect(() => {
@@ -96,48 +102,68 @@ function AIChatBox({ open, onClose }: AIChatBoxProps) {
   return (
     <div
       className={cn(
-        "animate-in slide-in-from-bottom-10 bg-card fixed right-4 bottom-4 z-50 flex flex-col rounded-lg border shadow-lg duration-300 2xl:right-16",
+        "animate-in slide-in-from-bottom-10 fixed right-4 bottom-4 z-50",
+        "flex flex-col rounded-xl border shadow-2xl duration-300",
+        "bg-background/95 backdrop-blur-md border-border/50",
+        "2xl:right-16",
         isExpanded
           ? "h-[650px] max-h-[90vh] w-[550px]"
           : "h-[500px] max-h-[80vh] w-80 sm:w-96"
       )}
     >
-      <div className="bg-primary text-primary-foreground flex items-center justify-between rounded-t-lg border-b p-3">
+      {/* Header */}
+      <div
+        className={cn(
+          "flex items-center justify-between rounded-t-xl border-b border-border/30",
+          "bg-gradient-to-r from-primary to-primary/80 text-primary-foreground",
+          "p-3 shadow-sm"
+        )}
+      >
         <div className="flex items-center gap-2">
-          <Bot size={18} />
-          <h3 className="font-medium">Notes Assistant</h3>
+          <Bot size={18} className="text-primary-foreground" />
+          <h3 className="font-semibold text-sm">Notes Assistant</h3>
         </div>
         <div className="flex items-center gap-1">
           <Button
             variant="ghost"
             size="icon"
             onClick={() => setIsExpanded(!isExpanded)}
-            className="text-primary-foreground hover:bg-primary/90 h-8 w-8"
+            className={cn(
+              "text-primary-foreground hover:bg-primary/90 h-8 w-8",
+              "transition-all duration-200 hover:scale-105"
+            )}
             title={isExpanded ? "Minimize" : "Expand"}
           >
-            {isExpanded ? <Minimize /> : <Expand />}
+            {isExpanded ? <Minimize size={16} /> : <Expand size={16} />}
           </Button>
           <Button
             variant="ghost"
             size="icon"
             onClick={() => setMessages(initialMessages)}
-            className="text-primary-foreground hover:bg-primary/90 h-8 w-8"
+            className={cn(
+              "text-primary-foreground hover:bg-primary/90 h-8 w-8",
+              "transition-all duration-200 hover:scale-105"
+            )}
             title="Clear chat"
             disabled={isProcessing}
           >
-            <Trash />
+            <Trash size={16} />
           </Button>
           <Button
             variant="ghost"
             size="icon"
             onClick={onClose}
-            className="text-primary-foreground hover:bg-primary/90 h-8 w-8"
+            className={cn(
+              "text-primary-foreground hover:bg-primary/90 h-8 w-8",
+              "transition-all duration-200 hover:scale-105"
+            )}
           >
             <X className="size-4" />
           </Button>
         </div>
       </div>
 
+      {/* Messages */}
       <div className="flex-1 space-y-4 overflow-y-auto p-3">
         {messages.map((message) => (
           <ChatMessage key={message.id} message={message} />
@@ -147,13 +173,25 @@ function AIChatBox({ open, onClose }: AIChatBoxProps) {
         <div ref={messagesEndRef} />
       </div>
 
-      <form className="flex gap-2 border-t p-3" onSubmit={onSubmit}>
+      {/* Input Form */}
+      <form
+        className={cn(
+          "flex gap-2 border-t border-border/30 p-3",
+          "bg-muted/20"
+        )}
+        onSubmit={onSubmit}
+      >
         <Textarea
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="Type your message..."
-          className="max-h-[120px] min-h-[40px] resize-none overflow-y-auto"
+          className={cn(
+            "max-h-[120px] min-h-[40px] resize-none overflow-y-auto",
+            "border-border/50 focus:border-primary",
+            "bg-background/50 focus:bg-background",
+            "transition-colors duration-200"
+          )}
           maxLength={1000}
           autoFocus
         />
@@ -161,6 +199,12 @@ function AIChatBox({ open, onClose }: AIChatBoxProps) {
           type="submit"
           size="icon"
           disabled={!input.trim() || isProcessing}
+          className={cn(
+            "bg-primary hover:bg-primary/90 text-primary-foreground",
+            "shadow-md hover:shadow-lg transition-all duration-200",
+            "hover:scale-105 transform",
+            "disabled:opacity-50 disabled:cursor-not-allowed"
+          )}
         >
           <Send className="size-4" />
         </Button>
@@ -185,23 +229,38 @@ function ChatMessage({ message }: ChatMessageProps) {
     >
       <div
         className={cn(
-          "prose dark:prose-invert rounded-lg px-3 py-2 text-sm",
+          "rounded-lg px-3 py-2 text-sm transition-all duration-200",
           message.role === "user"
-            ? "bg-primary text-primary-foreground"
-            : "bg-muted first:prose-p:mt-0"
+            ? "bg-primary text-primary-foreground shadow-md"
+            : "bg-muted/50 border border-border/30 shadow-sm"
         )}
       >
         {message.role === "assistant" && (
-          <div className="text-muted-foreground mb-1 flex items-center gap-1 text-xs font-medium">
+          <div
+            className={cn(
+              "mb-1 flex items-center gap-1 text-xs font-medium",
+              "text-muted-foreground"
+            )}
+          >
             <Bot className="text-primary size-3" />
             AI Assistant
           </div>
         )}
         {currentStep?.type === "text" && (
-          <Markdown>{currentStep.text}</Markdown>
+          <>
+            <Markdown>
+              {` ${
+                currentStep.text !== " "
+                  ? currentStep.text
+                  : "No Context found. Can you please be specific ?"
+              }`}
+            </Markdown>
+          </>
         )}
         {currentStep.type === "tool-invocation" && (
-          <div className="italic animate-pulse">Searching notes...</div>
+          <div className="italic animate-pulse text-muted-foreground">
+            Searching notes...
+          </div>
         )}
       </div>
     </div>
@@ -220,7 +279,7 @@ function Loader() {
 
 function ErrorMessage() {
   return (
-    <div className="text-sm text-red-500">
+    <div className="text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-lg px-3 py-2">
       Something went wrong. Please try again.
     </div>
   );

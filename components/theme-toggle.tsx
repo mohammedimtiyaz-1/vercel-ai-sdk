@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 
-export function ModeToggle() {
+export function ThemeToggle() {
   const [mounted, setMounted] = useState(false);
   const { theme, setTheme } = useTheme();
 
@@ -41,6 +41,17 @@ export function ModeToggle() {
     }
   };
 
+  const getThemeLabel = () => {
+    switch (theme) {
+      case "light":
+        return "Light";
+      case "dark":
+        return "Dark";
+      default:
+        return "System";
+    }
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -51,8 +62,7 @@ export function ModeToggle() {
             "w-9 h-9 transition-all duration-200 hover:scale-105",
             "border-border/50 hover:border-border",
             "bg-background/80 backdrop-blur-sm",
-            "hover:bg-background/90",
-            "shadow-sm hover:shadow-md"
+            "hover:bg-background/90"
           )}
           aria-label="Toggle theme"
         >
@@ -116,5 +126,50 @@ export function ModeToggle() {
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
+  );
+}
+
+// Simple theme toggle for mobile or compact use
+export function SimpleThemeToggle() {
+  const [mounted, setMounted] = useState(false);
+  const { theme, setTheme } = useTheme();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <Button variant="outline" size="icon" className="w-9 h-9">
+        <Sun className="h-4 w-4" />
+        <span className="sr-only">Toggle theme</span>
+      </Button>
+    );
+  }
+
+  const toggleTheme = () => {
+    setTheme(theme === "light" ? "dark" : "light");
+  };
+
+  return (
+    <Button
+      variant="outline"
+      size="icon"
+      onClick={toggleTheme}
+      className={cn(
+        "w-9 h-9 transition-all duration-200 hover:scale-105",
+        "border-border/50 hover:border-border",
+        "bg-background/80 backdrop-blur-sm",
+        "hover:bg-background/90"
+      )}
+      aria-label="Toggle theme"
+    >
+      {theme === "light" ? (
+        <Moon className="h-4 w-4" />
+      ) : (
+        <Sun className="h-4 w-4" />
+      )}
+      <span className="sr-only">Toggle theme</span>
+    </Button>
   );
 }

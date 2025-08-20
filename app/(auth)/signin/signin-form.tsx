@@ -18,6 +18,8 @@ import { AuthFormValues, signinSchema } from "../schema";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
+import { FileText, LogIn, UserPlus } from "lucide-react";
 
 export function SigninForm() {
   const [step, setStep] = useState<"signIn" | "signUp">("signIn");
@@ -74,18 +76,50 @@ export function SigninForm() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-muted/50">
-      <div className="w-full max-w-md p-8 space-y-8 bg-card rounded-lg shadow-lg">
-        <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold text-card-foreground">
-            {step === "signIn" ? "Login" : "Create Account"}
-          </h1>
-          <p className="text-muted-foreground">
-            {step === "signIn"
-              ? "Enter your credentials to access your account."
-              : "Enter your details to create a new account."}
-          </p>
+    <div
+      className={cn(
+        "flex flex-col items-center justify-center min-h-screen",
+        "bg-gradient-to-br from-background via-muted/20 to-background",
+        "p-4"
+      )}
+    >
+      <div
+        className={cn(
+          "w-full max-w-md p-8 space-y-8",
+          "bg-background/95 backdrop-blur-md rounded-2xl",
+          "border border-border/50 shadow-2xl",
+          "transition-all duration-300"
+        )}
+      >
+        {/* Header */}
+        <div className="text-center space-y-4">
+          <div
+            className={cn(
+              "w-16 h-16 mx-auto rounded-full",
+              "bg-gradient-to-br from-primary to-primary/70",
+              "flex items-center justify-center shadow-lg"
+            )}
+          >
+            <FileText className="w-8 h-8 text-primary-foreground" />
+          </div>
+          <div className="space-y-2">
+            <h1
+              className={cn(
+                "text-3xl font-bold",
+                "bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent"
+              )}
+            >
+              {step === "signIn" ? "Welcome Back" : "Create Account"}
+            </h1>
+            <p className="text-muted-foreground text-sm">
+              {step === "signIn"
+                ? "Sign in to access your Smart Notes"
+                : "Create your account to get started"}
+            </p>
+          </div>
         </div>
+
+        {/* Form */}
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
@@ -93,15 +127,22 @@ export function SigninForm() {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel className="text-sm font-medium text-foreground">
+                    Email
+                  </FormLabel>
                   <FormControl>
                     <Input
                       placeholder="you@example.com"
                       {...field}
                       type="email"
+                      className={cn(
+                        "border-border/50 focus:border-primary",
+                        "bg-background/50 focus:bg-background",
+                        "transition-colors duration-200"
+                      )}
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-destructive text-sm" />
                 </FormItem>
               )}
             />
@@ -110,31 +151,78 @@ export function SigninForm() {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Password</FormLabel>
+                  <FormLabel className="text-sm font-medium text-foreground">
+                    Password
+                  </FormLabel>
                   <FormControl>
-                    <PasswordInput placeholder="Password" {...field} />
+                    <PasswordInput
+                      placeholder="Enter your password"
+                      {...field}
+                      className={cn(
+                        "border-border/50 focus:border-primary",
+                        "bg-background/50 focus:bg-background",
+                        "transition-colors duration-200"
+                      )}
+                    />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-destructive text-sm" />
                 </FormItem>
               )}
             />
             {form.formState.errors.root && (
-              <div className="text-sm text-destructive">
+              <div
+                className={cn(
+                  "text-sm text-destructive bg-destructive/10",
+                  "border border-destructive/20 rounded-lg px-3 py-2"
+                )}
+              >
                 {form.formState.errors.root.message}
               </div>
             )}
-            <Button type="submit" className="w-full" disabled={loading}>
-              {step === "signIn" ? "Sign In" : "Sign Up"}
+            <Button
+              type="submit"
+              className={cn(
+                "w-full bg-primary hover:bg-primary/90 text-primary-foreground",
+                "shadow-md hover:shadow-lg transition-all duration-200",
+                "hover:scale-[1.02] transform font-medium py-3"
+              )}
+              disabled={loading}
+            >
+              {loading ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
+                  {step === "signIn" ? "Signing In..." : "Creating Account..."}
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  {step === "signIn" ? (
+                    <>
+                      <LogIn className="w-4 h-4" />
+                      Sign In
+                    </>
+                  ) : (
+                    <>
+                      <UserPlus className="w-4 h-4" />
+                      Create Account
+                    </>
+                  )}
+                </div>
+              )}
             </Button>
           </form>
         </Form>
+
+        {/* Toggle Mode */}
         <Button
           variant="link"
           type="button"
-          className="w-full text-sm text-muted-foreground cursor-pointer"
+          className={cn(
+            "w-full text-sm text-muted-foreground hover:text-foreground",
+            "transition-colors duration-200 cursor-pointer"
+          )}
           onClick={() => {
             setStep(step === "signIn" ? "signUp" : "signIn");
-            form.reset(); // Reset form errors and values when switching modes
+            form.reset();
           }}
         >
           {step === "signIn"
