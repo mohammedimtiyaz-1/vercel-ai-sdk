@@ -12,7 +12,7 @@ export default function Home() {
 
         {/* Title */}
         <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight">
-          Smart Notes
+          Notes Memo with AI
         </h1>
 
         {/* Description */}

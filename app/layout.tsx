@@ -12,8 +12,8 @@ const geistSans = Geist({
 
 export const metadata: Metadata = {
   title: {
-    template: "%s | Smart Notes",
-    default: "Smart Notes",
+    template: "%s | Notes Memo with AI",
+    default: "Notes Memo with AI",
   },
   description:
     "A note-taking app with AI chatbot integration built with Convex and the Vercel AI SDK.",
@@ -33,7 +33,7 @@ export default function RootLayout({
           {/* Footer */}
           <footer className="w-full bottom-0 fixed  mt-auto pt-8 pb-8 border-t border-gray-200">
             <div className="text-sm text-muted-foreground text-center">
-              <p>&copy; {new Date().getFullYear()} Smart Notes.</p>
+              <p>&copy; {new Date().getFullYear()} Notes Memo with AI.</p>
               <p>Made with ❤️ by Imtiyaz </p>
             </div>
           </footer>

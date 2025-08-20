@@ -1,6 +1,6 @@
-# Smart Notes - AI-Powered Note-Taking App
+# Notes Memo with AI - AI-Powered Note-Taking App
 
-A modern, intelligent note-taking application built with Next.js, Convex, and AI integration. Smart Notes allows users to create, organize, and search through their notes using natural language queries powered by OpenAI's GPT-4.
+A modern, intelligent note-taking application built with Next.js, Convex, and AI integration. Notes Memo with AI allows users to create, organize, and search through their notes using natural language queries powered by OpenAI's GPT-4.
 
 ## 🚀 Tech Stack
 
