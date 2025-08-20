@@ -41,17 +41,6 @@ export function ThemeToggle() {
     }
   };
 
-  const getThemeLabel = () => {
-    switch (theme) {
-      case "light":
-        return "Light";
-      case "dark":
-        return "Dark";
-      default:
-        return "System";
-    }
-  };
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -62,7 +51,8 @@ export function ThemeToggle() {
             "w-9 h-9 transition-all duration-200 hover:scale-105",
             "border-border/50 hover:border-border",
             "bg-background/80 backdrop-blur-sm",
-            "hover:bg-background/90"
+            "hover:bg-background/90",
+            "shadow-sm hover:shadow-md"
           )}
           aria-label="Toggle theme"
         >

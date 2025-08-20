@@ -247,15 +247,10 @@ function ChatMessage({ message }: ChatMessageProps) {
           </div>
         )}
         {currentStep?.type === "text" && (
-          <>
-            <Markdown>
-              {` ${
-                currentStep.text !== " "
-                  ? currentStep.text
-                  : "No Context found. Can you please be specific ?"
-              }`}
-            </Markdown>
-          </>
+          <Markdown>
+            {currentStep.text?.trim() ||
+              "No context found. Can you please be more specific?"}
+          </Markdown>
         )}
         {currentStep.type === "tool-invocation" && (
           <div className="italic animate-pulse text-muted-foreground">

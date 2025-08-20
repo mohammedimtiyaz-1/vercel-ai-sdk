@@ -11,9 +11,9 @@ import {
 import { api } from "@/convex/_generated/api";
 import { useMutation } from "convex/react";
 import { Trash2, FileText } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useState } from "react";
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Id } from "@/convex/_generated/dataModel";
 

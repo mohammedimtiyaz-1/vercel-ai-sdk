@@ -1,6 +1,4 @@
-import logo from "@/assets/logo.png";
 import { ModeToggle } from "@/components/mode-toggle";
-import Image from "next/image";
 import Link from "next/link";
 import { SignOutButton } from "./sign-out-button";
 import { cn } from "@/lib/utils";
@@ -23,6 +21,16 @@ export function Navbar() {
             "hover:scale-105 transform transition-transform duration-200"
           )}
         >
+          <div
+            className={cn(
+              "w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary/70",
+              "flex items-center justify-center shadow-sm"
+            )}
+          >
+            <span className="text-primary-foreground font-bold text-sm">
+              SN
+            </span>
+          </div>
           <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
             Smart Notes
           </span>
