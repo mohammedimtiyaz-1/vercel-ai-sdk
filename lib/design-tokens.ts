@@ -1,5 +1,5 @@
 /**
- * Design Token System for Smart Notes App
+ * Design Token System for  Notes App
  *
  * This file contains all the design tokens used throughout the application.
  * These tokens ensure consistency in colors, typography, spacing, and other design elements.

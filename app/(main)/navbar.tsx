@@ -28,11 +28,11 @@ export function Navbar() {
             )}
           >
             <span className="text-primary-foreground font-bold text-sm">
-              SN
+              AI
             </span>
           </div>
           <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-            Smart Notes
+            Notes Memo
           </span>
         </Link>
         <div className="flex items-center gap-3">

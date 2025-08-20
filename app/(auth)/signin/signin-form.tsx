@@ -113,7 +113,7 @@ export function SigninForm() {
             </h1>
             <p className="text-muted-foreground text-sm">
               {step === "signIn"
-                ? "Sign in to access your Smart Notes"
+                ? "Sign in to access your Notes Memo"
                 : "Create your account to get started"}
             </p>
           </div>

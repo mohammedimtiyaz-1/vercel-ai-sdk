@@ -81,7 +81,7 @@ function EmptyView() {
         No notes yet
       </h3>
       <p className="text-muted-foreground mb-4">
-        Create your first note to get started with Smart Notes
+        Create your first note to get started with Notes Memo
       </p>
       <CreateNoteButton />
     </div>

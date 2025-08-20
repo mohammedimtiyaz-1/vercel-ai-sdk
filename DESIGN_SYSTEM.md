@@ -1,4 +1,4 @@
-# Smart Notes Design System
+# Notes Memo Design System
 
 This document outlines the design system for the Smart Notes application, including design tokens, color schemes, typography, spacing, and component guidelines.
 
